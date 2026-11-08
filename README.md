@@ -1,4 +1,4 @@
-# Komerca — Your Everyday Marketplace
+# Komerca: Your Everyday Marketplace
 
 A second-hand marketplace for the Philippines, built as a portfolio project. Komerca is designed to be faster and smoother than Facebook Marketplace and Carousell through AI-assisted listing, better search, and cleaner deal flows.
 
@@ -6,11 +6,11 @@ A second-hand marketplace for the Philippines, built as a portfolio project. Kom
 
 ## Features
 
-- **AI listing assistant** — upload photos and get a pre-filled title, category, description, and suggested price range
-- **Full-text search** — Postgres full-text + trigram search with category filters and sort by newest, price, or nearest
-- **Deals** — time-limited reservations, make/accept/decline offers, inquiry threads, mark as sold
-- **Seller reputation** — post-deal reviews, completed deal count, response rate
-- **Listing check badge** — lightweight duplicate photo detection, suspicious-text flags, and price sanity check shown as a LOW / MEDIUM / HIGH badge
+- **AI listing assistant:** upload photos and get a pre-filled title, category, description, and suggested price range
+- **Full-text search:** Postgres full-text + trigram search with category filters and sort by newest, price, or nearest
+- **Deals:** time-limited reservations, make/accept/decline offers, inquiry threads, mark as sold
+- **Seller reputation:** post-deal reviews, completed deal count, response rate
+- **Listing check badge:** lightweight duplicate photo detection, suspicious-text flags, and price sanity check shown as a LOW / MEDIUM / HIGH badge
 
 ---
 
@@ -110,9 +110,9 @@ Copy `apps/api/.env.example` to `apps/api/.env` and fill in the values.
 
 ## Privacy Notes
 
-- **OTP login** — phone numbers are stored only to identify accounts. No government IDs or sensitive personal data are collected, in line with the Philippines Data Privacy Act.
-- **AI listing assistant** — only the listing photos you upload are sent to the third-party AI API. No user profile data, phone numbers, or personal information are included in those requests. This is enforced at the API route level.
-- **Images** — photos are uploaded directly from the app to Cloudinary using a signed URL. The API never stores the raw image bytes.
+- **OTP login:** phone numbers are stored only to identify accounts. No government IDs or sensitive personal data are collected, in line with the Philippines Data Privacy Act.
+- **AI listing assistant:** only the listing photos you upload are sent to the third-party AI API. No user profile data, phone numbers, or personal information are included in those requests. This is enforced at the API route level.
+- **Images:** photos are uploaded directly from the app to Cloudinary using a signed URL. The API never stores the raw image bytes.
 
 ---
 
@@ -120,7 +120,7 @@ Copy `apps/api/.env.example` to `apps/api/.env` and fill in the values.
 
 Brand colors: **Forest Green `#1F3D2B`** and **Sand Beige `#E8DCC4`**.
 
-All color tokens are defined once in `apps/mobile/lib/core/theme/app_colors.dart`. No hard-coded hex values anywhere else in the UI. All main color pairs pass WCAG AA (≥ 4.5:1 contrast ratio), enforced by a CI test.
+All color tokens are defined once in `apps/mobile/lib/core/theme/app_colors.dart`. No hard-coded hex values anywhere else in the UI. All main color pairs pass WCAG AA (4.5:1 minimum contrast ratio), enforced by a CI test.
 
 ---
 
@@ -128,17 +128,17 @@ All color tokens are defined once in `apps/mobile/lib/core/theme/app_colors.dart
 
 | Feature | Status |
 |---------|--------|
-| Scaffold, CI, theme, component gallery | ✅ Done |
-| Auth, categories, listings, search | 🔜 Next |
-| Deals (reserve, inquiries, sold) | ⏳ Pending |
-| AI listing assistant | ⏳ Pending |
-| Offers, reviews, reputation | ⏳ Pending |
-| Listing check badge, reports, admin | ⏳ Pending |
-| Saved searches, sort by nearest | ⏳ Pending |
-| Deploy, evaluation | ⏳ Pending |
+| Scaffold, CI, theme, component gallery | Done |
+| Auth, categories, listings, search | Next |
+| Deals (reserve, inquiries, sold) | Pending |
+| AI listing assistant | Pending |
+| Offers, reviews, reputation | Pending |
+| Listing check badge, reports, admin | Pending |
+| Saved searches, sort by nearest | Pending |
+| Deploy, evaluation | Pending |
 
 ---
 
 ## License
 
-Personal portfolio project — not licensed for redistribution.
+Personal portfolio project, not licensed for redistribution.
