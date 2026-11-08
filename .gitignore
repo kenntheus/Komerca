@@ -1,0 +1,36 @@
+# Claude Code
+.claude/
+
+# Node
+node_modules/
+dist/
+.env
+*.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter
+**/flutter/.dart_tool/
+**/flutter/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/flutter/.packages
+**/flutter/pubspec.lock
+
+# Coverage
+coverage/
+lcov.info
+
+# Prisma
+prisma/generated/
+
+# IDE
+.idea/
+.vscode/settings.json
+*.swp
