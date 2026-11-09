@@ -16,12 +16,13 @@ npm-debug.log*
 Thumbs.db
 
 # Flutter
-**/flutter/.dart_tool/
-**/flutter/build/
-**/.flutter-plugins
-**/.flutter-plugins-dependencies
-**/flutter/.packages
-**/flutter/pubspec.lock
+.dart_tool/
+build/
+*.g.dart
+*.freezed.dart
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
 
 # Coverage
 coverage/

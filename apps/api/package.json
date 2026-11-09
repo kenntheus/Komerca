@@ -2,6 +2,9 @@
   "name": "@komerca/api",
   "version": "0.0.0",
   "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc --noEmit",

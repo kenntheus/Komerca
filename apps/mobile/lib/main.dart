@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/gallery/component_gallery_screen.dart';
 
 void main() {
   runApp(
@@ -11,17 +11,18 @@ void main() {
   );
 }
 
-class KomercaApp extends StatelessWidget {
+class KomercaApp extends ConsumerWidget {
   const KomercaApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
       title: 'Komerca',
       theme: AppTheme.light,
-      themeMode: ThemeMode.light, // light theme only — no dark mode
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
-      home: const ComponentGalleryScreen(),
+      routerConfig: router,
     );
   }
 }

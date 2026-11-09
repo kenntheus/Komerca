@@ -129,7 +129,7 @@ All color tokens are defined once in `apps/mobile/lib/core/theme/app_colors.dart
 | Feature | Status |
 |---------|--------|
 | Scaffold, CI, theme, component gallery | Done |
-| Auth, categories, listings, search | Next |
+| Auth, categories, listings, search | Done |
 | Deals (reserve, inquiries, sold) | Pending |
 | AI listing assistant | Pending |
 | Offers, reviews, reputation | Pending |

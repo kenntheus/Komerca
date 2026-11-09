@@ -1,0 +1,687 @@
+openapi: 3.1.0
+info:
+  title: Komerca API
+  version: 1.0.0
+  description: Second-hand marketplace API for the Philippines.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Phone:
+      type: string
+      pattern: '^\+639\d{9}$'
+      example: '+639171234567'
+
+    OtpRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone:
+          $ref: '#/components/schemas/Phone'
+
+    OtpVerify:
+      type: object
+      required: [phone, code]
+      properties:
+        phone:
+          $ref: '#/components/schemas/Phone'
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: '123456'
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          $ref: '#/components/schemas/Phone'
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [BUYER, SELLER, ADMIN]
+        completedDealCount:
+          type: integer
+        responseRate:
+          type: number
+          format: float
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        iconName:
+          type: string
+
+    CategoryDetail:
+      allOf:
+        - $ref: '#/components/schemas/Category'
+        - type: object
+          properties:
+            attributeFields:
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  required:
+                    type: boolean
+                  type:
+                    type: string
+                    enum: [text, number, select]
+
+    Condition:
+      type: string
+      enum: [NEW, LIKE_NEW, GOOD, FAIR, FOR_PARTS]
+
+    ListingStatus:
+      type: string
+      enum: [DRAFT, ACTIVE, SOLD, REMOVED]
+
+    ListingPhoto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+        publicId:
+          type: string
+        sortOrder:
+          type: integer
+
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: string
+          description: Decimal string to preserve precision
+        condition:
+          $ref: '#/components/schemas/Condition'
+        status:
+          $ref: '#/components/schemas/ListingStatus'
+        city:
+          type: string
+        viewCount:
+          type: integer
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingPhoto'
+        seller:
+          $ref: '#/components/schemas/User'
+        category:
+          $ref: '#/components/schemas/Category'
+        attributes:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ListingList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Listing'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+paths:
+  /auth/otp/request:
+    post:
+      tags: [Auth]
+      summary: Request an OTP
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpRequest'
+      responses:
+        '200':
+          description: OTP sent
+        '429':
+          description: Rate limited
+
+  /auth/otp/verify:
+    post:
+      tags: [Auth]
+      summary: Verify OTP and get tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpVerify'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid or expired OTP
+
+  /auth/token/refresh:
+    post:
+      tags: [Auth]
+      summary: Rotate refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: New token pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid or expired refresh token
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Invalidate refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '204':
+          description: Logged out
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                city:
+                  type: string
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get public user profile
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Public user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{id}/listings:
+    get:
+      tags: [Users]
+      summary: Get a user's active listings
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated listings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingList'
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List all categories
+      security: []
+      responses:
+        '200':
+          description: Array of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /categories/{slug}:
+    get:
+      tags: [Categories]
+      summary: Get category with attribute field definitions
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetail'
+
+  /listings:
+    get:
+      tags: [Listings]
+      summary: Browse / search listings
+      security: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: condition
+          in: query
+          schema:
+            $ref: '#/components/schemas/Condition'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [newest, price_asc, price_desc, nearest]
+            default: newest
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lon
+          in: query
+          schema:
+            type: number
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated listings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingList'
+
+    post:
+      tags: [Listings]
+      summary: Create a draft listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [categoryId, title, price, condition, city]
+              properties:
+                categoryId:
+                  type: string
+                  format: uuid
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                condition:
+                  $ref: '#/components/schemas/Condition'
+                city:
+                  type: string
+                attributes:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Draft listing created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
+  /listings/{id}:
+    get:
+      tags: [Listings]
+      summary: Get listing detail
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '404':
+          description: Not found
+
+    patch:
+      tags: [Listings]
+      summary: Update draft listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                condition:
+                  $ref: '#/components/schemas/Condition'
+                city:
+                  type: string
+                attributes:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
+    delete:
+      tags: [Listings]
+      summary: Remove listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Removed
+
+  /listings/{id}/publish:
+    post:
+      tags: [Listings]
+      summary: Publish a draft listing (requires at least one photo)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Published listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '422':
+          description: Validation error (e.g. no photos)
+
+  /listings/{id}/sold:
+    post:
+      tags: [Listings]
+      summary: Mark listing as sold
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+
+  /listings/{id}/photos/sign:
+    get:
+      tags: [Photos]
+      summary: Get a signed upload URL for a listing photo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Upload parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                    enum: [local, cloudinary]
+                  publicId:
+                    type: string
+                  signature:
+                    type: string
+                    nullable: true
+                  timestamp:
+                    type: integer
+                    nullable: true
+                  apiKey:
+                    type: string
+                    nullable: true
+                  uploadUrl:
+                    type: string
+                    nullable: true
+
+  /listings/{id}/photos:
+    post:
+      tags: [Photos]
+      summary: Register a photo after upload
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [publicId, url]
+              properties:
+                publicId:
+                  type: string
+                url:
+                  type: string
+      responses:
+        '201':
+          description: Photo registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingPhoto'
+
+  /listings/{id}/photos/{photoId}:
+    delete:
+      tags: [Photos]
+      summary: Delete a listing photo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
